@@ -15,6 +15,29 @@ $ cd docker-ecidade
 $ docker build --rm -t opsec:php56-dev .
 ```
 
+## Variáveis de ambiente
+
+O uso das variáveis de ambiente é opcional.
+
+> Se a variável não for informada, ou se seu valor for vazio, não será realizada nenhuma alteração nos arquivos de configuração.
+
+> A inicialização do container só realizará alterações se os arquivos `libs/db_conn.php` e `.env` já existirem no projeto.
+
+DB_USUARIO
+Parâmetro opcional. Informa qual é o usuário de acesso ao banco de dados.
+
+DB_SENHA
+Parâmetro opcional. Informa qual é a senha de acesso ao banco de dados.
+
+DB_SERVIDOR
+Parâmetro opcional. Informa qual o endereço do servidor de banco de dados.
+
+DB_PORTA
+Parâmetro opcional. Informa qual é a porta do servidor de banco de dados.
+
+DB_BASE
+Parâmetro opcional. Informa qual é o nome do banco de dados a ser utilizado.
+
 ## Inicalizando o container
 
 ```bash
@@ -38,6 +61,21 @@ O comando acima tem as seguintes funções:
 > ```bash
 > docker run --rm -d -v /caminho/onde/esta/aplicação/e-cidade:/var/www/html -p 8080:80 opsec:php56-dev
 > ```
+
+## Inicalizando o container utilizando variáveis de ambiente
+
+```bash
+$ cd /caminho/onde/esta/aplicação/e-cidade
+$ docker run --rm -d -v ${PWD:-.}:/var/www/html -p 8080:80 --name ecidade \
+    -e DB_USUARIO=ecidade \
+    -e DB_SENHA=senha \
+    -e DB_SERVIDOR=192.168.10.100 \
+    -e DB_PORTA=5432 \
+    -e DB_BASE=basededados \
+    opsec:php56-dev
+```
+
+> **Não utilize os valores `localhost` ou `127.0.0.1` na configuração de conexão do container, pois ele vai considerar a conexão loopback dentro do container e não vai conseguir conectar na interface loopback do hospedeiro.**
 
 ## Acessando o ambiente do container
 
