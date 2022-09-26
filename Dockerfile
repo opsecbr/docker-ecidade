@@ -108,13 +108,13 @@ RUN echo "xdebug.remote_enable=on" >> /etc/php/5.6/mods-available/xdebug.ini && 
 # Ajusta a permissão do imagick
 RUN sed -i "s|<policy domain=\"coder\" rights=\"none\" pattern=\"PDF\" />|<policy domain=\"coder\" rights=\"read\|write\" pattern=\"PDF\" />|" /etc/ImageMagick-6/policy.xml
 
-# Ajusta as configurações do PHP-FPM
+# Ajusta as configurações PHP como módulo FPM
 RUN sed -i "s|^pm\ =.*|pm = ondemand|" /etc/php/5.6/fpm/pool.d/www.conf && \
   sed -i "s|^pm.max_children.*|pm.max_children = 300|" /etc/php/5.6/fpm/pool.d/www.conf && \
   sed -i "s|^pm.process_idle_timeout.*|pm.process_idle_timeout = 60s|" /etc/php/5.6/fpm/pool.d/www.conf && \
   sed -i "s|^pm.max_requests.*|pm.max_requests = 500|" /etc/php/5.6/fpm/pool.d/www.conf
 
-# Ajusta as configurações do APACHE2
+# Ajusta as configurações do Apache2
 RUN sed -i "s|^MaxRequestWorkers.*|MaxRequestWorkers         350|" /etc/apache2/mods-available/mpm_event.conf && \
   echo "umask 002" >> /etc/apache2/envvars && \
   a2enmod rewrite ssl proxy_fcgi setenvif && \
@@ -127,7 +127,7 @@ RUN curl -sS https://getcomposer.org/installer -o composer-setup.php && \
   php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
   rm composer-setup.php
 
-# Instala o node.js para suporte ao e-storage
+# Instala o node.js para suporte a módulos compilados com o NPM
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
   apt-get install -y gcc g++ make nodejs
 
