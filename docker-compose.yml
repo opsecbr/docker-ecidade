@@ -1,0 +1,67 @@
+version: '3.3'
+
+networks:
+  app:
+    driver: bridge
+
+services:
+  web:
+    image: opsec:web
+    restart: always
+    build:
+      context: ./web
+      x-bake:
+        no-cache: true
+    environment:
+      DB_USUARIO: ${DB_USUARIO}
+      DB_SENHA: ${DB_SENHA}
+      DB_SERVIDOR: ${DB_SERVIDOR}
+      DB_PORTA: 5432
+      DB_BASE: ${DB_BASE}
+    volumes:
+      - ${CAMINHO_FONTES_ECIDADE}:/var/www/html
+    networks:
+      - app
+    ports:
+      - "${PORTA_HTTP_ECIDADE}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: opsec:db
+    restart: always
+    build:
+      context: ./db
+      x-bake:
+        no-cache: true
+    environment:
+      POSTGRES_USER: ${DB_USUARIO}
+      POSTGRES_PASSWORD: ${DB_SENHA}
+      POSTGRES_DB: ${DB_BASE}
+      POSTGRES_INITDB_ARGS: '--encoding=LATIN1 --lc-collate=pt_BR.ISO-8859-1 --lc-ctype=pt_BR.ISO-8859-1 --lc-messages=pt_BR.ISO-8859-1 --lc-monetary=pt_BR.ISO-8859-1 --lc-numeric=pt_BR.ISO-8859-1 --lc-time=pt_BR.ISO-8859-1'
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USUARIO}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DEFAULT_USER: ${DB_USUARIO}
+      ADMINER_DEFAULT_PASSWORD: ${DB_SENHA}
+      ADMINER_DEFAULT_TYPE: postgresql
+      ADMINER_DEFAULT_PORT: 5432
+      ADMINER_DEFAULT_DB: ${DB_BASE}
+    networks:
+      - app
+    ports:
+      - "${PORTA_HTTP_ADMINER}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
